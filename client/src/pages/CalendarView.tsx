@@ -38,15 +38,30 @@ export default function CalendarView() {
     const formattedContents = formatContents(contents);
     
     return formattedContents
-      .filter(content => content.plannedDate) // Only include content with planned dates
-      .map(content => ({
-        id: content.id,
-        title: content.title,
-        start: new Date(content.plannedDate!),
-        end: new Date(content.plannedDate!),
-        allDay: true,
-        resource: content,
-      }));
+      .filter(content => content.plannedDate && content.plannedDate !== "") // Only include content with valid planned dates
+      .map(content => {
+        // Make sure we have a valid date string 
+        try {
+          const startDate = new Date(content.plannedDate!);
+          // Check if date is valid
+          if (isNaN(startDate.getTime())) {
+            return null;
+          }
+          
+          return {
+            id: content.id,
+            title: content.title,
+            start: startDate,
+            end: startDate,
+            allDay: true,
+            resource: content,
+          };
+        } catch (error) {
+          console.error("Invalid date format", content.plannedDate);
+          return null;
+        }
+      })
+      .filter(event => event !== null); // Filter out any null events from invalid dates
   }, [contents]);
 
   // Handle content added

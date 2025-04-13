@@ -27,7 +27,6 @@ const formSchema = insertContentSchema
     description: z.string().optional(),
     script: z.string().optional(),
     thumbnailIdea: z.string().optional(),
-    resourcesLinks: z.string().optional(),
     plannedDate: z.string().optional(),
     youtubeLiveLink: z.string().url().optional().or(z.literal("")),
     instagramLiveLink: z.string().url().optional().or(z.literal("")),
@@ -39,7 +38,6 @@ const formSchema = insertContentSchema
     description: data.description || "",
     script: data.script || "",
     thumbnailIdea: data.thumbnailIdea || "",
-    resourcesLinks: data.resourcesLinks || "",
     plannedDate: data.plannedDate || "",
     youtubeLiveLink: data.youtubeLiveLink || "",
     instagramLiveLink: data.instagramLiveLink || "",
@@ -62,7 +60,6 @@ export default function AddContentDialog({
       description: "",
       script: "",
       thumbnailIdea: "",
-      resourcesLinks: "",
       stage: "Idea",
       contentType: "Short",
       plannedDate: "",
@@ -79,7 +76,6 @@ export default function AddContentDialog({
         description: initialContent.description || "",
         script: initialContent.script || "",
         thumbnailIdea: initialContent.thumbnailIdea || "",
-        resourcesLinks: initialContent.resourcesLinks || "",
         stage: initialContent.stage,
         contentType: initialContent.contentType,
         plannedDate: initialContent.plannedDate || "",
@@ -92,7 +88,6 @@ export default function AddContentDialog({
         description: "",
         script: "",
         thumbnailIdea: "",
-        resourcesLinks: "",
         stage: "Idea",
         contentType: "Short",
         plannedDate: "",
@@ -112,7 +107,6 @@ export default function AddContentDialog({
         description: data.description || null,
         script: data.script || null,
         thumbnailIdea: data.thumbnailIdea || null,
-        resourcesLinks: data.resourcesLinks || null,
         plannedDate: data.plannedDate || null,
         youtubeLiveLink: data.youtubeLiveLink || null,
         instagramLiveLink: data.instagramLiveLink || null,
@@ -220,19 +214,7 @@ export default function AddContentDialog({
               )}
             />
             
-            <FormField
-              control={form.control}
-              name="resourcesLinks"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Resources & Links</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Add any relevant resources or links" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
