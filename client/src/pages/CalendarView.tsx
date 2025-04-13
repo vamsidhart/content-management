@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar as BigCalendar, Views, DateLocalizer } from "react-big-calendar";
+import { Calendar as BigCalendar, Views, DateLocalizer, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, addDays, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
 import { enUS } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -14,13 +14,14 @@ const locales = {
   'en-US': enUS,
 };
 
-const localizer = {
-  format: (date: Date, formatStr: string) => format(date, formatStr, { locale: locales["en-US"] }),
-  parse: (str: string, formatStr: string) => parse(str, formatStr, new Date(), { locale: locales["en-US"] }),
-  startOfWeek: (date: Date) => startOfWeek(date, { locale: locales["en-US"] }),
-  getDay: (date: Date) => getDay(date),
+// Use the dateFnsLocalizer provided by react-big-calendar
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
   locales,
-} as DateLocalizer;
+});
 
 export default function CalendarView() {
   const [date, setDate] = useState(new Date());
