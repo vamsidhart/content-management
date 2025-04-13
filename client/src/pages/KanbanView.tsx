@@ -59,11 +59,16 @@ export default function KanbanView() {
     mutationFn: async ({ id, stage }: { id: number; stage: string }) => {
       return await apiRequest("PATCH", `/api/contents/${id}`, { stage });
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/contents"] });
+      
+      // Get the content and format the title for the toast
+      const content = sortedContents.find(item => item.id === variables.id);
+      const title = content ? (content.title.length > 25 ? `${content.title.substring(0, 25)}...` : content.title) : "Content";
+      
       toast({
         title: "Stage updated",
-        description: "Content stage has been updated successfully.",
+        description: `"${title}" moved to ${variables.stage} stage`,
       });
     },
     onError: (error) => {
@@ -164,18 +169,25 @@ export default function KanbanView() {
       </PageHeader>
 
       <div className="mt-6">
-        <h3 className="text-lg leading-6 font-medium text-slate-900 mb-4">
-          Content by Stage
-        </h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg leading-6 font-medium text-slate-900">
+            Content by Stage
+          </h3>
+          <div className="text-sm text-slate-500 italic">
+            Tip: Drag items to move between stages
+          </div>
+        </div>
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {contentStages.map((stage) => (
               <Droppable key={stage} droppableId={stage}>
-                {(provided) => (
+                {(provided, snapshot) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className="h-full"
+                    className={`h-full transition-colors duration-200 ${
+                      snapshot.isDraggingOver ? "bg-indigo-50" : ""
+                    }`}
                   >
                     <KanbanColumn
                       stage={stage}

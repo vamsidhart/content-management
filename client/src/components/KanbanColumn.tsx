@@ -32,7 +32,7 @@ export default function KanbanColumn({
         </span>
       </div>
       
-      <div className="space-y-3 min-h-[200px]">
+      <div className="space-y-3 min-h-[200px] transition-all">
         {contents.map((content, index) => (
           <Draggable 
             key={`content-${content.id}`} 
@@ -44,9 +44,11 @@ export default function KanbanColumn({
                 ref={provided.innerRef}
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
+                className={`${snapshot.isDragging ? "cursor-grabbing" : "cursor-grab"} transition-transform`}
                 style={{
                   ...provided.draggableProps.style,
                   opacity: snapshot.isDragging ? 0.8 : 1,
+                  transform: snapshot.isDragging ? `${provided.draggableProps.style?.transform} rotate(1deg)` : provided.draggableProps.style?.transform,
                 }}
               >
                 <ContentCard 
@@ -60,8 +62,9 @@ export default function KanbanColumn({
         ))}
         
         {contents.length === 0 && (
-          <div className="py-8 text-center text-slate-500 text-sm border border-dashed border-slate-300 rounded-lg">
-            No content items
+          <div className="py-8 text-center text-slate-500 text-sm border border-dashed border-slate-300 rounded-lg hover:bg-slate-100 transition-colors">
+            <p>No content items</p>
+            <p className="text-xs mt-1 text-slate-400">Drop content here</p>
           </div>
         )}
       </div>
