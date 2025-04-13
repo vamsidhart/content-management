@@ -10,14 +10,34 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatDate(date: Date | string | null): string {
   if (!date) return "";
-  const dateObj = typeof date === "string" ? new Date(date) : date;
-  return format(dateObj, "yyyy-MM-dd");
+  try {
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      console.warn("Invalid date provided to formatDate:", date);
+      return "";
+    }
+    return format(dateObj, "yyyy-MM-dd");
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "";
+  }
 }
 
 export function formatDateForDisplay(date: Date | string | null): string {
   if (!date) return "";
-  const dateObj = typeof date === "string" ? new Date(date) : date;
-  return format(dateObj, "MMM d, yyyy");
+  try {
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      console.warn("Invalid date provided to formatDateForDisplay:", date);
+      return "";
+    }
+    return format(dateObj, "MMM d, yyyy");
+  } catch (error) {
+    console.error("Error formatting date for display:", error);
+    return "";
+  }
 }
 
 export function formatContent(content: Content): FormattedContent {

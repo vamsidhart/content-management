@@ -86,14 +86,26 @@ export default function CalendarView() {
 
   // Custom day cell component
   const DayComponent = ({ date, children }: any) => {
-    const today = new Date();
-    const isToday = format(date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
-    
-    return (
-      <div className={`h-full min-h-[100px] p-1 ${isToday ? 'bg-indigo-50' : ''}`}>
-        {children}
-      </div>
-    );
+    try {
+      const today = new Date();
+      // Make sure date is a valid date object
+      const cellDate = date instanceof Date ? date : new Date();
+      const isToday = format(cellDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
+      
+      return (
+        <div className={`h-full min-h-[100px] p-1 ${isToday ? 'bg-indigo-50' : ''}`}>
+          {children}
+        </div>
+      );
+    } catch (error) {
+      // Fallback rendering if there's an issue with the date
+      console.error("Error in DayComponent:", error);
+      return (
+        <div className="h-full min-h-[100px] p-1">
+          {children}
+        </div>
+      );
+    }
   };
 
   // Handle navigating between months
@@ -167,10 +179,19 @@ export default function CalendarView() {
               };
             }}
             dayPropGetter={(date) => {
-              const currentMonth = date.getMonth() === new Date().getMonth();
-              return {
-                className: `calendar-day ${currentMonth ? "" : "bg-slate-50 text-slate-400"}`,
-              };
+              try {
+                // Make sure date is a valid date object
+                if (!(date instanceof Date) || isNaN(date.getTime())) {
+                  return { className: "calendar-day" };
+                }
+                const currentMonth = date.getMonth() === new Date().getMonth();
+                return {
+                  className: `calendar-day ${currentMonth ? "" : "bg-slate-50 text-slate-400"}`,
+                };
+              } catch (error) {
+                console.error("Error in dayPropGetter:", error);
+                return { className: "calendar-day" };
+              }
             }}
           />
         </div>
