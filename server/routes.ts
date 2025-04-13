@@ -1,15 +1,34 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertContentSchema, updateContentSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { setupAuth } from "./auth";
+
+// Middleware to check if user is authenticated
+const isAuthenticated = (req: Request, res: any, next: any) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "Not authenticated" });
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get all content items
+  // Set up authentication routes
+  setupAuth(app);
+
+  // Get all content items (for authenticated users, return only their content)
   app.get("/api/contents", async (req, res) => {
     try {
-      const contents = await storage.getAllContents();
+      let contents;
+      if (req.isAuthenticated()) {
+        // Get user's contents if authenticated
+        contents = await storage.getUserContents((req.user as any).id);
+      } else {
+        // Otherwise get all contents (for demo purposes)
+        contents = await storage.getAllContents();
+      }
       res.json(contents);
     } catch (error) {
       console.error("Error fetching contents:", error);
@@ -32,6 +51,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Content not found" });
       }
       
+      // Check if user has access to this content item
+      if (req.isAuthenticated() && content.userId && content.userId !== (req.user as any).id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
       res.json(content);
     } catch (error) {
       console.error("Error fetching content:", error);
@@ -43,7 +67,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contents", async (req, res) => {
     try {
       const validContent = insertContentSchema.parse(req.body);
-      const newContent = await storage.createContent(validContent);
+      let userId = undefined;
+      
+      // Associate content with authenticated user
+      if (req.isAuthenticated()) {
+        userId = (req.user as any).id;
+      }
+      
+      const newContent = await storage.createContent(validContent, userId);
       res.status(201).json(newContent);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -68,6 +99,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid ID format" });
       }
       
+      // Check content ownership
+      if (req.isAuthenticated()) {
+        const content = await storage.getContent(id);
+        if (content && content.userId && content.userId !== (req.user as any).id) {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      }
+      
       const validContent = updateContentSchema.parse(req.body);
       const updatedContent = await storage.updateContent(id, validContent);
       
@@ -90,6 +129,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update content stage (for drag-and-drop functionality)
+  app.patch("/api/contents/:id/stage", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      const { stage } = req.body;
+      
+      if (!stage) {
+        return res.status(400).json({ message: "Stage is required" });
+      }
+      
+      // Check content ownership
+      if (req.isAuthenticated()) {
+        const content = await storage.getContent(id);
+        if (content && content.userId && content.userId !== (req.user as any).id) {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      }
+      
+      const updatedContent = await storage.updateContent(id, { stage });
+      
+      if (!updatedContent) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+      
+      res.json(updatedContent);
+    } catch (error) {
+      console.error("Error updating content stage:", error);
+      res.status(500).json({ message: "Failed to update content stage" });
+    }
+  });
+
   // Delete a content item
   app.delete("/api/contents/:id", async (req, res) => {
     try {
@@ -97,6 +172,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
+      // Check content ownership
+      if (req.isAuthenticated()) {
+        const content = await storage.getContent(id);
+        if (content && content.userId && content.userId !== (req.user as any).id) {
+          return res.status(403).json({ message: "Access denied" });
+        }
       }
       
       const success = await storage.deleteContent(id);

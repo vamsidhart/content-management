@@ -1,86 +1,125 @@
 import {
-  contents,
+  contents, 
+  users,
   type Content,
   type InsertContent,
   type UpdateContent,
+  type User,
+  type InsertUser
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
+import { randomBytes } from "crypto";
+
+// Configure PostgreSQL session store
+const PostgresSessionStore = connectPg(session);
 
 // Storage interface
 export interface IStorage {
+  // Content methods
   getAllContents(): Promise<Content[]>;
+  getUserContents(userId: number): Promise<Content[]>;
   getContent(id: number): Promise<Content | undefined>;
-  createContent(content: InsertContent): Promise<Content>;
+  createContent(content: InsertContent, userId?: number): Promise<Content>;
   updateContent(id: number, content: UpdateContent): Promise<Content | undefined>;
   deleteContent(id: number): Promise<boolean>;
+  
+  // User methods
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
+  // Session store
+  sessionStore: session.Store;
 }
 
-// In-memory storage implementation
-export class MemStorage implements IStorage {
-  private contents: Map<number, Content>;
-  private currentId: number;
-
+// Database storage implementation
+export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+  
   constructor() {
-    this.contents = new Map();
-    this.currentId = 1;
+    // Set up session store
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      tableName: 'session',
+      createTableIfMissing: true,
+    });
   }
 
   async getAllContents(): Promise<Content[]> {
-    return Array.from(this.contents.values());
+    return await db.select().from(contents);
+  }
+
+  async getUserContents(userId: number): Promise<Content[]> {
+    return await db.select().from(contents).where(eq(contents.userId, userId));
   }
 
   async getContent(id: number): Promise<Content | undefined> {
-    return this.contents.get(id);
+    const result = await db.select().from(contents).where(eq(contents.id, id));
+    return result.length > 0 ? result[0] : undefined;
   }
 
-  async createContent(contentData: InsertContent): Promise<Content> {
-    const id = this.currentId++;
-    const createdAt = new Date();
+  async createContent(contentData: InsertContent, userId?: number): Promise<Content> {
+    // Convert string date to actual Date for database
+    const plannedDate = contentData.plannedDate ? new Date(contentData.plannedDate) : null;
     
-    // Convert plannedDate string to Date object if it's provided
-    const plannedDate = contentData.plannedDate 
-      ? new Date(contentData.plannedDate) 
-      : null;
-
-    const content: Content = {
+    const [content] = await db.insert(contents).values({
       ...contentData,
-      id,
       plannedDate,
-      createdAt,
-    };
-
-    this.contents.set(id, content);
+      userId: userId || null
+    }).returning();
+    
     return content;
   }
 
   async updateContent(id: number, contentData: UpdateContent): Promise<Content | undefined> {
-    const existingContent = this.contents.get(id);
-    
-    if (!existingContent) {
-      return undefined;
+    // Convert string date to actual Date for database if provided
+    const updateData = { ...contentData };
+    if (updateData.plannedDate !== undefined) {
+      updateData.plannedDate = updateData.plannedDate ? new Date(updateData.plannedDate) : null;
     }
     
-    // Convert plannedDate string to Date object if it's provided and changed
-    const plannedDate = contentData.plannedDate !== undefined
-      ? contentData.plannedDate ? new Date(contentData.plannedDate) : null
-      : existingContent.plannedDate;
-
-    const updatedContent: Content = {
-      ...existingContent,
-      ...contentData,
-      plannedDate,
-    };
-
-    this.contents.set(id, updatedContent);
+    const [updatedContent] = await db
+      .update(contents)
+      .set(updateData)
+      .where(eq(contents.id, id))
+      .returning();
+    
     return updatedContent;
   }
 
   async deleteContent(id: number): Promise<boolean> {
-    if (!this.contents.has(id)) {
-      return false;
-    }
+    const result = await db
+      .delete(contents)
+      .where(eq(contents.id, id))
+      .returning({ id: contents.id });
+    
+    return result.length > 0;
+  }
 
-    return this.contents.delete(id);
+  async getUser(id: number): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result.length > 0 ? result[0] : undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.username, username));
+    return result.length > 0 ? result[0] : undefined;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
   }
 }
 
-export const storage = new MemStorage();
+// Generate a secure random session secret if it doesn't exist
+if (!process.env.SESSION_SECRET) {
+  process.env.SESSION_SECRET = randomBytes(32).toString('hex');
+  console.log('Generated session secret');
+}
+
+export const storage = new DatabaseStorage();
