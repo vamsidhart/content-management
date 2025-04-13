@@ -45,7 +45,7 @@ export default function ContentCard({ content, onContentUpdated }: ContentCardPr
 
   return (
     <>
-      <Card className={cn("border-l-4 cursor-move", getStageBorderColor(content.stage))}>
+      <Card className={cn("border-l-4", getStageBorderColor(content.stage))}>
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-2">
             <h4 className="text-sm font-medium text-slate-900">{content.title}</h4>
@@ -58,11 +58,20 @@ export default function ContentCard({ content, onContentUpdated }: ContentCardPr
             {content.description || "No description provided."}
           </p>
           
-          {content.finalLiveLink && (
+          {content.youtubeLiveLink && (
             <div className="flex items-center mb-2 text-xs text-blue-600">
               <Link className="mr-1.5 h-4 w-4" />
-              <a href={content.finalLiveLink} target="_blank" rel="noopener noreferrer" className="hover:underline truncate">
-                {content.finalLiveLink}
+              <a href={content.youtubeLiveLink} target="_blank" rel="noopener noreferrer" className="hover:underline truncate">
+                YouTube: {content.youtubeLiveLink}
+              </a>
+            </div>
+          )}
+
+          {content.instagramLiveLink && (
+            <div className="flex items-center mb-2 text-xs text-pink-600">
+              <Link className="mr-1.5 h-4 w-4" />
+              <a href={content.instagramLiveLink} target="_blank" rel="noopener noreferrer" className="hover:underline truncate">
+                Instagram: {content.instagramLiveLink}
               </a>
             </div>
           )}
@@ -83,11 +92,19 @@ export default function ContentCard({ content, onContentUpdated }: ContentCardPr
                 <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
                   Edit
                 </DropdownMenuItem>
-                {content.finalLiveLink && (
+                {content.youtubeLiveLink && (
                   <DropdownMenuItem asChild>
-                    <a href={content.finalLiveLink} target="_blank" rel="noopener noreferrer">
+                    <a href={content.youtubeLiveLink} target="_blank" rel="noopener noreferrer">
                       <Eye className="mr-2 h-4 w-4" />
-                      View Live
+                      View on YouTube
+                    </a>
+                  </DropdownMenuItem>
+                )}
+                {content.instagramLiveLink && (
+                  <DropdownMenuItem asChild>
+                    <a href={content.instagramLiveLink} target="_blank" rel="noopener noreferrer">
+                      <Eye className="mr-2 h-4 w-4" />
+                      View on Instagram
                     </a>
                   </DropdownMenuItem>
                 )}

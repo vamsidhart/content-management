@@ -4,6 +4,7 @@ import ContentCard from "@/components/ContentCard";
 import { FormattedContent } from "@/lib/types";
 import { useState } from "react";
 import AddContentDialog from "@/components/AddContentDialog";
+import { Draggable, DroppableStateSnapshot } from "react-beautiful-dnd";
 
 interface KanbanColumnProps {
   stage: string;
@@ -23,7 +24,7 @@ export default function KanbanColumn({
   };
 
   return (
-    <div className="bg-slate-50 rounded-lg shadow p-4">
+    <div className="bg-slate-50 rounded-lg shadow p-4 h-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-slate-900">{stage}</h3>
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
@@ -31,13 +32,31 @@ export default function KanbanColumn({
         </span>
       </div>
       
-      <div className="space-y-3">
-        {contents.map((content) => (
-          <ContentCard 
-            key={content.id} 
-            content={content} 
-            onContentUpdated={onContentUpdated}
-          />
+      <div className="space-y-3 min-h-[200px]">
+        {contents.map((content, index) => (
+          <Draggable 
+            key={`content-${content.id}`} 
+            draggableId={`content-${content.id}`} 
+            index={index}
+          >
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                style={{
+                  ...provided.draggableProps.style,
+                  opacity: snapshot.isDragging ? 0.8 : 1,
+                }}
+              >
+                <ContentCard 
+                  key={content.id} 
+                  content={content} 
+                  onContentUpdated={onContentUpdated}
+                />
+              </div>
+            )}
+          </Draggable>
         ))}
         
         {contents.length === 0 && (
@@ -65,12 +84,14 @@ export default function KanbanColumn({
           id: 0,
           title: "",
           description: "",
+          script: "",
           thumbnailIdea: "",
           resourcesLinks: "",
           stage: stage,
           contentType: "Short",
           plannedDate: "",
-          finalLiveLink: "",
+          youtubeLiveLink: "",
+          instagramLiveLink: "",
           createdAt: "",
         }}
       />
