@@ -8,6 +8,7 @@ import PageHeader from "@/components/PageHeader";
 import AddContentDialog from "@/components/AddContentDialog";
 import { formatContents } from "@/lib/utils";
 import { queryClient } from "@/lib/queryClient";
+import { FormattedContent } from "@/lib/types";
 
 // Create date-fns localizer for react-big-calendar
 const locales = {
@@ -27,6 +28,7 @@ export default function CalendarView() {
   const [date, setDate] = useState(new Date());
   const [view, setView] = useState(Views.MONTH);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedContent, setSelectedContent] = useState<FormattedContent | null>(null);
 
   // Fetch contents
   const { data: contents = [], isLoading } = useQuery({
@@ -75,11 +77,23 @@ export default function CalendarView() {
     const typeClass = content.contentType === "Short" 
       ? "bg-blue-100 text-blue-800" 
       : "bg-purple-100 text-purple-800";
+    
+    // Function to handle click on calendar event
+    const handleEventClick = () => {
+      // Open a dialog to view/edit the content
+      setSelectedContent(content);
+      setIsAddDialogOpen(true);
+    };
       
     return (
-      <div className={`text-xs p-1 rounded overflow-hidden flex items-center`}>
+      <div 
+        className={`text-xs p-1 rounded overflow-hidden flex items-center cursor-pointer hover:bg-gray-100 transition-colors`}
+        onClick={handleEventClick}
+      >
         <div className={`w-2 h-2 rounded-full mr-1 ${content.contentType === "Short" ? "bg-blue-500" : "bg-purple-500"}`}></div>
-        <div className="truncate">{content.title}</div>
+        <div className="truncate">
+          {content.title} - <span className="font-medium">{content.stage}</span>
+        </div>
       </div>
     );
   };
@@ -199,8 +213,13 @@ export default function CalendarView() {
 
       <AddContentDialog
         open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
+        onOpenChange={(open) => {
+          setIsAddDialogOpen(open);
+          // Reset selected content when dialog is closed
+          if (!open) setSelectedContent(null);
+        }}
         onContentAdded={handleContentAdded}
+        initialContent={selectedContent}
       />
     </div>
   );
