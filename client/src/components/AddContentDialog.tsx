@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,8 +28,11 @@ const formSchema = insertContentSchema
     script: z.string().optional(),
     thumbnailIdea: z.string().optional(),
     resourcesLinks: z.string().optional(),
+    plannedDate: z.string().optional(),
     youtubeLiveLink: z.string().url().optional().or(z.literal("")),
     instagramLiveLink: z.string().url().optional().or(z.literal("")),
+    stage: z.enum(contentStages),
+    contentType: z.enum(contentTypes),
   })
   .transform((data) => ({
     ...data,
@@ -37,6 +40,7 @@ const formSchema = insertContentSchema
     script: data.script || "",
     thumbnailIdea: data.thumbnailIdea || "",
     resourcesLinks: data.resourcesLinks || "",
+    plannedDate: data.plannedDate || "",
     youtubeLiveLink: data.youtubeLiveLink || "",
     instagramLiveLink: data.instagramLiveLink || "",
   }));
@@ -109,6 +113,7 @@ export default function AddContentDialog({
         script: data.script || null,
         thumbnailIdea: data.thumbnailIdea || null,
         resourcesLinks: data.resourcesLinks || null,
+        plannedDate: data.plannedDate || null,
         youtubeLiveLink: data.youtubeLiveLink || null,
         instagramLiveLink: data.instagramLiveLink || null,
       };
@@ -143,11 +148,14 @@ export default function AddContentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">
             {isEditing ? "Edit Content" : "Add New Content"}
           </DialogTitle>
+          <DialogDescription className="text-sm text-gray-500">
+            Fill in the details for your content item
+          </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
@@ -293,7 +301,14 @@ export default function AddContentDialog({
                 <FormItem>
                   <FormLabel>Planned Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input 
+                      type="date" 
+                      value={field.value || ''} 
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      name={field.name}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
