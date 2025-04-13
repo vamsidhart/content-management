@@ -4,13 +4,16 @@ export type FormattedContent = {
   id: number;
   title: string;
   description: string | null;
+  script: string | null;
   thumbnailIdea: string | null;
   resourcesLinks: string | null;
   stage: string;
   contentType: string;
   plannedDate: string | null;
-  finalLiveLink: string | null;
+  youtubeLiveLink: string | null;
+  instagramLiveLink: string | null;
   createdAt: string;
+  userId?: number | null;
 };
 
 export type KanbanData = {
@@ -25,10 +28,12 @@ export type CalendarData = {
 export type ContentFormData = {
   title: string;
   description: string;
+  script: string;
   thumbnailIdea: string;
   resourcesLinks: string;
   stage: string;
   contentType: string;
   plannedDate: string;
-  finalLiveLink: string;
+  youtubeLiveLink: string;
+  instagramLiveLink: string;
 };

@@ -22,9 +22,19 @@ export function formatDateForDisplay(date: Date | string | null): string {
 
 export function formatContent(content: Content): FormattedContent {
   return {
-    ...content,
+    id: content.id,
+    title: content.title,
+    description: content.description,
+    script: content.script || null,
+    thumbnailIdea: content.thumbnailIdea,
+    resourcesLinks: content.resourcesLinks,
+    stage: content.stage,
+    contentType: content.contentType,
     plannedDate: content.plannedDate ? formatDate(content.plannedDate) : null,
+    youtubeLiveLink: content.youtubeLiveLink || null,
+    instagramLiveLink: content.instagramLiveLink || null,
     createdAt: formatDate(content.createdAt),
+    userId: content.userId,
   };
 }
 

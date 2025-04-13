@@ -25,16 +25,20 @@ const formSchema = insertContentSchema
   .extend({
     title: z.string().min(3, "Title must be at least 3 characters"),
     description: z.string().optional(),
+    script: z.string().optional(),
     thumbnailIdea: z.string().optional(),
     resourcesLinks: z.string().optional(),
-    finalLiveLink: z.string().url().optional().or(z.literal("")),
+    youtubeLiveLink: z.string().url().optional().or(z.literal("")),
+    instagramLiveLink: z.string().url().optional().or(z.literal("")),
   })
   .transform((data) => ({
     ...data,
     description: data.description || "",
+    script: data.script || "",
     thumbnailIdea: data.thumbnailIdea || "",
     resourcesLinks: data.resourcesLinks || "",
-    finalLiveLink: data.finalLiveLink || "",
+    youtubeLiveLink: data.youtubeLiveLink || "",
+    instagramLiveLink: data.instagramLiveLink || "",
   }));
 
 export default function AddContentDialog({ 
@@ -52,12 +56,14 @@ export default function AddContentDialog({
     defaultValues: {
       title: "",
       description: "",
+      script: "",
       thumbnailIdea: "",
       resourcesLinks: "",
       stage: "Idea",
       contentType: "Short",
       plannedDate: "",
-      finalLiveLink: "",
+      youtubeLiveLink: "",
+      instagramLiveLink: "",
     },
   });
 
@@ -67,23 +73,27 @@ export default function AddContentDialog({
       form.reset({
         title: initialContent.title,
         description: initialContent.description || "",
+        script: initialContent.script || "",
         thumbnailIdea: initialContent.thumbnailIdea || "",
         resourcesLinks: initialContent.resourcesLinks || "",
         stage: initialContent.stage,
         contentType: initialContent.contentType,
         plannedDate: initialContent.plannedDate || "",
-        finalLiveLink: initialContent.finalLiveLink || "",
+        youtubeLiveLink: initialContent.youtubeLiveLink || "",
+        instagramLiveLink: initialContent.instagramLiveLink || "",
       });
     } else {
       form.reset({
         title: "",
         description: "",
+        script: "",
         thumbnailIdea: "",
         resourcesLinks: "",
         stage: "Idea",
         contentType: "Short",
         plannedDate: "",
-        finalLiveLink: "",
+        youtubeLiveLink: "",
+        instagramLiveLink: "",
       });
     }
   }, [initialContent, form, open]);
@@ -96,9 +106,11 @@ export default function AddContentDialog({
       const formattedData = {
         ...data,
         description: data.description || null,
+        script: data.script || null,
         thumbnailIdea: data.thumbnailIdea || null,
         resourcesLinks: data.resourcesLinks || null,
-        finalLiveLink: data.finalLiveLink || null,
+        youtubeLiveLink: data.youtubeLiveLink || null,
+        instagramLiveLink: data.instagramLiveLink || null,
       };
       
       if (isEditing && initialContent) {
@@ -162,6 +174,24 @@ export default function AddContentDialog({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Enter content description" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="script"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Script</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Enter video script content" 
+                      className="min-h-[150px]"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -272,12 +302,26 @@ export default function AddContentDialog({
             
             <FormField
               control={form.control}
-              name="finalLiveLink"
+              name="youtubeLiveLink"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Final Live Link</FormLabel>
+                  <FormLabel>YouTube Live Link</FormLabel>
                   <FormControl>
                     <Input placeholder="https://youtube.com/watch?v=..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="instagramLiveLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Instagram Live Link</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://instagram.com/p/..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
