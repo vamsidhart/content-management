@@ -41,6 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   const [, setLocation] = useLocation();
+  import { useLocation } from "wouter";
   
   const handleLogout = async () => {
     try {
