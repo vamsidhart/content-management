@@ -28,13 +28,17 @@ export default function Login() {
         throw new Error(data.message || "Login failed");
       }
 
-      window.location.href = "/";
-    } catch (error) {
+      if (data.message) {
+        throw new Error(data.message);
+      }
+      window.location.href = "/dashboard";
+    } catch (error: any) {
       toast({ 
         title: "Login failed", 
-        description: "Please check your credentials and try again",
+        description: error.message || "Invalid username or password",
         variant: "destructive" 
       });
+      console.error("Login error:", error);
     }
   };
 
