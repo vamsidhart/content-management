@@ -12,10 +12,10 @@ interface KanbanColumnProps {
   onContentUpdated: () => void;
 }
 
-export default function KanbanColumn({ 
-  stage, 
-  contents, 
-  onContentUpdated 
+export default function KanbanColumn({
+  stage,
+  contents,
+  onContentUpdated,
 }: KanbanColumnProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
@@ -31,12 +31,12 @@ export default function KanbanColumn({
           {contents.length}
         </span>
       </div>
-      
+
       <div className="space-y-3 min-h-[200px] transition-all">
         {contents.map((content, index) => (
-          <Draggable 
-            key={`content-${content.id}`} 
-            draggableId={`content-${content.id}`} 
+          <Draggable
+            key={`content-${content.id}`}
+            draggableId={`content-${content.id}`}
             index={index}
           >
             {(provided, snapshot) => (
@@ -48,19 +48,21 @@ export default function KanbanColumn({
                 style={{
                   ...provided.draggableProps.style,
                   opacity: snapshot.isDragging ? 0.8 : 1,
-                  transform: snapshot.isDragging ? `${provided.draggableProps.style?.transform} rotate(1deg)` : provided.draggableProps.style?.transform,
+                  transform: snapshot.isDragging
+                    ? `${provided.draggableProps.style?.transform} rotate(1deg)`
+                    : provided.draggableProps.style?.transform,
                 }}
               >
-                <ContentCard 
-                  key={content.id} 
-                  content={content} 
+                <ContentCard
+                  key={content.id}
+                  content={content}
                   onContentUpdated={onContentUpdated}
                 />
               </div>
             )}
           </Draggable>
         ))}
-        
+
         {contents.length === 0 && (
           <div className="py-8 text-center text-slate-500 text-sm border border-dashed border-slate-300 rounded-lg hover:bg-slate-100 transition-colors">
             <p>No content items</p>
@@ -68,10 +70,10 @@ export default function KanbanColumn({
           </div>
         )}
       </div>
-      
+
       <div className="mt-3 text-center">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="w-full"
           onClick={() => setIsAddDialogOpen(true)}
         >

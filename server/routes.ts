@@ -24,8 +24,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let contents;
       if (req.isAuthenticated()) {
         // Get user's contents if authenticated
-        contents = await storage.getUserContents((req.user as any).id);
-      } else {
+        // commented by Vamsi -    contents = await storage.getUserContents((req.user as any).id);
+        // commented by Vamsi - } else {
         // Otherwise get all contents (for demo purposes)
         contents = await storage.getAllContents();
       }
@@ -74,9 +74,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
-        return res.status(400).json({ 
-          message: "Validation error", 
-          errors: validationError.details 
+        return res.status(400).json({
+          message: "Validation error",
+          errors: validationError.details,
         });
       }
 
@@ -105,9 +105,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
-        return res.status(400).json({ 
-          message: "Validation error", 
-          errors: validationError.details 
+        return res.status(400).json({
+          message: "Validation error",
+          errors: validationError.details,
         });
       }
 
@@ -167,25 +167,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User management routes
-  app.post('/api/users', async (req, res) => {
+  app.post("/api/users", async (req, res) => {
     try {
       const userData = req.body;
       const user = await storage.createUser({
         ...userData,
-        password: await hashPassword(userData.password)
+        password: await hashPassword(userData.password),
       });
       res.status(201).json({ ...user, password: undefined });
     } catch (error) {
-      res.status(400).json({ message: 'Error creating user' });
+      res.status(400).json({ message: "Error creating user" });
     }
   });
 
-  app.get('/api/users', async (req, res) => {
+  app.get("/api/users", async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      res.json(users.map(user => ({ ...user, password: undefined })));
+      res.json(users.map((user) => ({ ...user, password: undefined })));
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching users' });
+      res.status(500).json({ message: "Error fetching users" });
     }
   });
 
