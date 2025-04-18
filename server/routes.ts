@@ -5,6 +5,8 @@ import { insertContentSchema, updateContentSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { setupAuth } from "./auth";
+import { WebSocketServer, WebSocket } from 'ws';
+
 
 // Middleware to check if user is authenticated
 const isAuthenticated = (req: Request, res: any, next: any) => {
@@ -214,6 +216,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const httpServer = createServer(app);
-  return httpServer;
+  const server = createServer(app);
+  const wss = new WebSocketServer({ server });
+
+  wss.on('connection', (ws) => {
+    console.log('Client connected to WebSocket');
+
+    ws.on('close', () => {
+      console.log('Client disconnected from WebSocket');
+    });
+  });
+
+  // Broadcast updates to all connected clients
+  app.use((req, res, next) => {
+    const originalJson = res.json;
+    res.json = function(data) {
+      if (req.method !== 'GET' && req.path.startsWith('/api/contents')) {
+        wss.clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'CONTENT_UPDATED' }));
+          }
+        });
+      }
+      return originalJson.call(this, data);
+    };
+    next();
+  });
+
+  return server;
+}
+
+// Placeholder for password hashing function.  Replace with actual implementation.
+async function hashPassword(password: string): Promise<string> {
+  return password; // Replace with actual hashing logic
 }
