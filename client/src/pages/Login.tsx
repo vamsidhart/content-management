@@ -29,8 +29,7 @@ export default function Login() {
         throw new Error(data.message || "Login failed");
       }
 
-      toast({ title: "Logged in successfully" });
-      setLocation("/");
+      window.location.href = "/";
     } catch (error) {
       toast({ title: "Login failed", variant: "destructive" });
     }

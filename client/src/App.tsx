@@ -25,10 +25,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   useWebSocket();
-  const { data: user, isLoading } = useQuery(["/api/user"]);
+  const { data: user, isLoading } = useQuery(["/api/user"], {
+    retry: false,
+    refetchOnWindowFocus: false
+  });
   
   if (isLoading) {
-    return null;
+    return <div>Loading...</div>;
   }
 
   return (
