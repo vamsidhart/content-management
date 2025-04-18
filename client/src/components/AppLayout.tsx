@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -41,7 +42,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   const [, setLocation] = useLocation();
-  import { useLocation } from "wouter";
   
   const handleLogout = async () => {
     try {
