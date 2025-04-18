@@ -20,7 +20,6 @@ export default function Sidebar({ className }: SidebarProps) {
     { name: "Kanban Board", path: "/", icon: LayoutPanelLeft },
     { name: "Calendar View", path: "/calendar", icon: Calendar },
     { name: "All Content", path: "/all", icon: FileText },
-    { name: "Resources", path: "/resources", icon: BookOpen },
   ];
 
   const bottomNavigation = [];
