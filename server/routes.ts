@@ -33,19 +33,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
 
-  //Login Route
-  app.post("/api/login", async (req: Request, res: Response) => {
-    const { username, password } = req.body;
-    // **REPLACE THIS WITH ACTUAL AUTHENTICATION LOGIC**
-    // This is a placeholder,  replace with your actual authentication mechanism.
-    if (username === "demo" && password === "demo") {
-      req.session.user = { id: 1, username: "demo" }; //Simulate session creation.  This needs proper session management
-      res.cookie('session', 'authenticated', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  });
+  // Login route is handled by Passport in auth.ts
 
 
   app.get("/api/user", async (req: Request, res: Response) => {
