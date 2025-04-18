@@ -1,6 +1,11 @@
-
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +27,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-      
+
       if (!response.ok) {
         throw new Error("Login failed");
       }
-      
+
       setIsLoginOpen(false);
       toast({ title: "Logged in successfully" });
       window.location.reload();
@@ -52,11 +57,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: newPassword }),
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to change password");
       }
-      
+
       setIsChangePasswordOpen(false);
       toast({ title: "Password changed successfully" });
     } catch (error) {
@@ -69,21 +74,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <div className="mr-4 flex">
-            <a className="mr-6 flex items-center space-x-2" href="/">
-              <span className="font-bold inline-block">Content Manager</span>
-            </a>
+          <div className="container flex h-14 items-center">
+            <div className="flex flex-1 items-center justify-end space-x-2">
+              <Button variant="outline" onClick={() => setIsLoginOpen(true)}>
+                Login
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setIsChangePasswordOpen(true)}
+              >
+                Change Password
+              </Button>
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-1 items-center justify-end space-x-2">
-            <Button variant="outline" onClick={() => setIsLoginOpen(true)}>Login</Button>
-            <Button variant="outline" onClick={() => setIsChangePasswordOpen(true)}>Change Password</Button>
-            <Button variant="outline" onClick={handleLogout}>Logout</Button>
-          </div>
-        </div>
-      </header>
-      <main className="flex-1">{children}</main>
-    </div>
+        </header>
+        <main className="flex-1">{children}</main>
+      </div>
 
       <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
         <DialogContent>
@@ -93,18 +102,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="username">Username</Label>
-              <Input 
-                id="username" 
-                value={username} 
+              <Input
+                id="username"
+                value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                value={password} 
+              <Input
+                id="password"
+                type="password"
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
@@ -115,7 +124,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen}>
+      <Dialog
+        open={isChangePasswordOpen}
+        onOpenChange={setIsChangePasswordOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Change Password</DialogTitle>
@@ -123,10 +135,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="newPassword">New Password</Label>
-              <Input 
-                id="newPassword" 
-                type="password" 
-                value={newPassword} 
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
             </div>
