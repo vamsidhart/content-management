@@ -8,7 +8,7 @@ import {
   type InsertUser
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
@@ -21,18 +21,18 @@ const PostgresSessionStore = connectPg(session);
 export interface IStorage {
   getAllUsers(): Promise<User[]>;
   // Content methods
-  getAllContents(): Promise<Content[]>;
+  getAllContents(): Promise<(Content & { creator: string })[]>;
   getUserContents(userId: number): Promise<Content[]>;
   getContent(id: number): Promise<Content | undefined>;
   createContent(content: InsertContent, userId?: number): Promise<Content>;
   updateContent(id: number, content: UpdateContent): Promise<Content | undefined>;
   deleteContent(id: number): Promise<boolean>;
-  
+
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Session store
   sessionStore: session.Store;
 }
@@ -40,7 +40,7 @@ export interface IStorage {
 // Database storage implementation
 export class DatabaseStorage implements IStorage {
   sessionStore: session.Store;
-  
+
   constructor() {
     // Set up session store
     this.sessionStore = new PostgresSessionStore({
@@ -50,8 +50,15 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  async getAllContents(): Promise<Content[]> {
-    return await db.select().from(contents);
+  async getAllContents(): Promise<(Content & { creator: string })[]> {
+    return await db
+      .select({
+        ...contents,
+        creator: users.username
+      })
+      .from(contents)
+      .leftJoin(users, eq(contents.userId, users.id))
+      .orderBy(desc(contents.createdAt));
   }
 
   async getUserContents(userId: number): Promise<Content[]> {
@@ -66,13 +73,13 @@ export class DatabaseStorage implements IStorage {
   async createContent(contentData: InsertContent, userId?: number): Promise<Content> {
     // Convert string date to actual Date for database
     const plannedDate = contentData.plannedDate ? new Date(contentData.plannedDate) : null;
-    
+
     const [content] = await db.insert(contents).values({
       ...contentData,
       plannedDate,
       userId: userId || null
     }).returning();
-    
+
     return content;
   }
 
@@ -82,13 +89,13 @@ export class DatabaseStorage implements IStorage {
     if (updateData.plannedDate !== undefined) {
       updateData.plannedDate = updateData.plannedDate ? new Date(updateData.plannedDate) : null;
     }
-    
+
     const [updatedContent] = await db
       .update(contents)
       .set(updateData)
       .where(eq(contents.id, id))
       .returning();
-    
+
     return updatedContent;
   }
 
@@ -97,7 +104,7 @@ export class DatabaseStorage implements IStorage {
       .delete(contents)
       .where(eq(contents.id, id))
       .returning({ id: contents.id });
-    
+
     return result.length > 0;
   }
 

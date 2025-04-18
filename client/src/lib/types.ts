@@ -14,6 +14,7 @@ export type FormattedContent = {
   instagramLiveLink: string | null;
   createdAt: string;
   userId?: number | null;
+  creator?: string;
 };
 
 export type KanbanData = {

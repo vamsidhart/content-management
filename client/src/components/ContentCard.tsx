@@ -53,11 +53,11 @@ export default function ContentCard({ content, onContentUpdated }: ContentCardPr
               {content.contentType}
             </Badge>
           </div>
-          
+
           <p className="text-sm text-slate-500 mb-3 line-clamp-2">
             {content.description || "No description provided."}
           </p>
-          
+
           {content.youtubeLiveLink && (
             <div className="flex items-center mb-2 text-xs text-blue-600">
               <Link className="mr-1.5 h-4 w-4" />
@@ -75,13 +75,15 @@ export default function ContentCard({ content, onContentUpdated }: ContentCardPr
               </a>
             </div>
           )}
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center text-xs text-slate-500">
+
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center">
               <Calendar className="mr-1.5 h-4 w-4" />
               {content.plannedDate ? formatDateForDisplay(content.plannedDate) : "Not scheduled"}
             </div>
-            
+            <div>Created by: {content.creator}</div>
+          </div>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -120,7 +122,7 @@ export default function ContentCard({ content, onContentUpdated }: ContentCardPr
           </div>
         </CardContent>
       </Card>
-      
+
       <AddContentDialog
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}

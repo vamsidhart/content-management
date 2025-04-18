@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertContentSchema, updateContentSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
-import { setupAuth, requireAdmin, requireEditor } from "./auth";
+import { setupAuth } from "./auth";
 
 // Middleware to check if user is authenticated
 const isAuthenticated = (req: Request, res: any, next: any) => {
