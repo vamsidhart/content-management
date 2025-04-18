@@ -17,10 +17,13 @@ const isAuthenticated = (req: Request, res: any, next: any) => {
   res.status(401).json({ message: "Not authenticated" });
 };
 
+import { hashPassword } from "./auth";
+
 async function createTestUser() {
+  const hashedPassword = await hashPassword("testpass123");
   const user = {
     username: "testuser",
-    password: "testpass123",
+    password: hashedPassword,
     email: "test@example.com"
   };
   const newUser = await storage.createUser(user);
