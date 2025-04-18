@@ -8,32 +8,37 @@ import { toast } from "@/hooks/use-toast";
 
 export default function Register() {
   const [, setLocation] = useLocation();
+  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     email: "",
-    role: "editor" // Default role
+    role: "editor"
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/register", {
+      const endpoint = isLogin ? "/api/login" : "/api/register";
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(isLogin ? {
+          username: formData.username,
+          password: formData.password
+        } : formData),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Registration failed");
+        throw new Error(error.message || (isLogin ? "Login failed" : "Registration failed"));
       }
 
       toast({
         title: "Success",
-        description: "Registration successful!",
+        description: isLogin ? "Login successful!" : "Registration successful!",
       });
       setLocation("/");
     } catch (error) {
@@ -49,7 +54,7 @@ export default function Register() {
     <div className="min-h-screen w-full flex items-center justify-center bg-slate-50">
       <Card className="w-full max-w-md mx-4">
         <CardHeader>
-          <CardTitle>Register</CardTitle>
+          <CardTitle>{isLogin ? "Login" : "Register"}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,18 +76,29 @@ export default function Register() {
                 onChange={(e) => setFormData(prev => ({...prev, password: e.target.value}))}
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
-              <Input
-                required
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
-              />
-            </div>
+            {!isLogin && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  required
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
+                />
+              </div>
+            )}
             <Button type="submit" className="w-full">
-              Register
+              {isLogin ? "Login" : "Register"}
             </Button>
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                className="text-sm text-blue-600 hover:underline"
+                onClick={() => setIsLogin(!isLogin)}
+              >
+                {isLogin ? "Need an account? Register" : "Already have an account? Login"}
+              </button>
+            </div>
           </form>
         </CardContent>
       </Card>
