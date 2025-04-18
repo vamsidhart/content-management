@@ -28,6 +28,22 @@ async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
+// Middleware to check if user has admin role
+export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user || (req.user as Express.User).role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access required' });
+  }
+  next();
+};
+
+// Middleware to check if user has editor role or higher
+export const requireEditor = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user || !['admin', 'editor'].includes((req.user as Express.User).role)) {
+    return res.status(403).json({ message: 'Editor access required' });
+  }
+  next();
+};
+
 export function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET!,

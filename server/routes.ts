@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertContentSchema, updateContentSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
-import { setupAuth } from "./auth";
+import { setupAuth, requireAdmin, requireEditor } from "./auth";
 
 // Middleware to check if user is authenticated
 const isAuthenticated = (req: Request, res: any, next: any) => {
@@ -198,3 +198,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   return httpServer;
 }
+// Admin routes for user management
+app.post('/api/users', requireAdmin, async (req, res) => {
+  try {
+    const userData = req.body;
+    const user = await storage.createUser({
+      ...userData,
+      password: await hashPassword(userData.password)
+    });
+    res.status(201).json({ ...user, password: undefined });
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating user' });
+  }
+});
+
+app.get('/api/users', requireAdmin, async (req, res) => {
+  try {
+    const users = await storage.getAllUsers();
+    res.json(users.map(user => ({ ...user, password: undefined })));
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching users' });
+  }
+});
