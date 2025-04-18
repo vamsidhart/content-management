@@ -20,6 +20,7 @@ async function hashPassword(password: string) {
 }
 
 export async function createTestUser() {
+  const { hashPassword } = await import('./auth');
   const hashedPassword = await hashPassword("testpass123");
   return await db.insert(users)
     .values({
