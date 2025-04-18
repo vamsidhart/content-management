@@ -82,7 +82,6 @@ export default function ContentCard({ content, onContentUpdated }: ContentCardPr
               {content.plannedDate ? formatDateForDisplay(content.plannedDate) : "Not scheduled"}
             </div>
             <div>Created by: {content.creator}</div>
-          </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
