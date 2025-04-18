@@ -17,7 +17,7 @@ export default function Sidebar({ className }: SidebarProps) {
   const [location] = useLocation();
 
   const navigation = [
-    { name: "Kanban Board", path: "/", icon: LayoutPanelLeft },
+    { name: "Kanban Board", path: "/kanban", icon: LayoutPanelLeft },
     { name: "Calendar View", path: "/calendar", icon: Calendar },
     { name: "All Content", path: "/all", icon: FileText },
   ];
