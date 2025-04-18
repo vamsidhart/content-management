@@ -217,10 +217,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const server = createServer(app);
-  const wss = new WebSocketServer({ server });
+  const wss = new WebSocketServer({ 
+    server,
+    path: "/ws"
+  });
 
   wss.on('connection', (ws) => {
     console.log('Client connected to WebSocket');
+
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+    });
 
     ws.on('close', () => {
       console.log('Client disconnected from WebSocket');
