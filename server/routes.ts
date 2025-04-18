@@ -18,11 +18,13 @@ const isAuthenticated = (req: Request, res: any, next: any) => {
 };
 
 async function createTestUser() {
-  const password = "password123"; // Needs to be hashed securely!
-  const hashedPassword = await hashPassword(password);
-  const newUser = await storage.createUser("testuser", hashedPassword);
+  const user = {
+    username: "testuser",
+    password: "testpass123",
+    email: "test@example.com"
+  };
+  const newUser = await storage.createUser(user);
   return newUser;
-
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
