@@ -109,7 +109,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       <DropdownMenuItem onClick={async () => {
                         try {
                           await fetch('/api/logout', { method: 'POST' });
-                          window.location.reload();
+                          window.location.href = '/register';
                         } catch (error) {
                           console.error('Failed to logout:', error);
                         }
