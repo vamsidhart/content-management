@@ -1,30 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { WebSocketServer } from 'ws';
-import { Server } from 'http';
-
-export let wss: WebSocketServer;
-
-export function setupWebSocket(server: Server) {
-  wss = new WebSocketServer({ server });
-  
-  wss.on('connection', (ws) => {
-    log('WebSocket client connected');
-    
-    ws.on('close', () => {
-      log('WebSocket client disconnected');
-    });
-  });
-}
-
-export function broadcastUpdate(data: any) {
-  wss?.clients?.forEach(client => {
-    if (client.readyState === 1) {
-      client.send(JSON.stringify(data));
-    }
-  });
-}
 
 const app = express();
 app.use(express.json());
