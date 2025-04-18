@@ -40,11 +40,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const [, setLocation] = useLocation();
+  
   const handleLogout = async () => {
     try {
       await fetch("/api/logout", { method: "POST" });
       toast({ title: "Logged out successfully" });
-      window.location.reload();
+      setLocation("/login");
     } catch (error) {
       toast({ title: "Logout failed", variant: "destructive" });
     }
