@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Sidebar from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 
@@ -89,15 +95,29 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   </svg>
                 </Button>
                 <div className="ml-3 relative">
-                  <div>
-                    <Button variant="ghost" size="icon" className="flex items-center max-w-xs rounded-full">
-                      <img 
-                        className="h-8 w-8 rounded-full" 
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" 
-                        alt="User avatar" 
-                      />
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="flex items-center max-w-xs rounded-full">
+                        <img 
+                          className="h-8 w-8 rounded-full" 
+                          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" 
+                          alt="User avatar" 
+                        />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={async () => {
+                        try {
+                          await fetch('/api/logout', { method: 'POST' });
+                          window.location.reload();
+                        } catch (error) {
+                          console.error('Failed to logout:', error);
+                        }
+                      }}>
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </div>
