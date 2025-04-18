@@ -13,6 +13,7 @@ import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
 import { randomBytes } from "crypto";
+import { broadcastUpdate } from "./index";
 
 // Configure PostgreSQL session store
 const PostgresSessionStore = connectPg(session);
@@ -72,6 +73,7 @@ export class DatabaseStorage implements IStorage {
       userId: userId || null
     }).returning();
     
+    broadcastUpdate({ type: 'create', content });
     return content;
   }
 
@@ -88,6 +90,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(contents.id, id))
       .returning();
     
+    broadcastUpdate({ type: 'update', content: updatedContent });
     return updatedContent;
   }
 
@@ -97,6 +100,9 @@ export class DatabaseStorage implements IStorage {
       .where(eq(contents.id, id))
       .returning({ id: contents.id });
     
+    if (result.length > 0) {
+      broadcastUpdate({ type: 'delete', id });
+    }
     return result.length > 0;
   }
 
