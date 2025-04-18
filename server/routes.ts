@@ -40,22 +40,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/contents/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID format" });
       }
-      
+
       const content = await storage.getContent(id);
-      
+
       if (!content) {
         return res.status(404).json({ message: "Content not found" });
       }
-      
+
       // Check if user has access to this content item
       if (req.isAuthenticated() && content.userId && content.userId !== (req.user as any).id) {
         return res.status(403).json({ message: "Access denied" });
       }
-      
+
       res.json(content);
     } catch (error) {
       console.error("Error fetching content:", error);
@@ -68,12 +68,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validContent = insertContentSchema.parse(req.body);
       let userId = undefined;
-      
+
       // Associate content with authenticated user
       if (req.isAuthenticated()) {
         userId = (req.user as any).id;
       }
-      
+
       const newContent = await storage.createContent(validContent, userId);
       res.status(201).json(newContent);
     } catch (error) {
@@ -84,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: validationError.details 
         });
       }
-      
+
       console.error("Error creating content:", error);
       res.status(500).json({ message: "Failed to create content" });
     }
@@ -94,11 +94,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/contents/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID format" });
       }
-      
+
       // Check content ownership
       if (req.isAuthenticated()) {
         const content = await storage.getContent(id);
@@ -106,14 +106,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(403).json({ message: "Access denied" });
         }
       }
-      
+
       const validContent = updateContentSchema.parse(req.body);
       const updatedContent = await storage.updateContent(id, validContent);
-      
+
       if (!updatedContent) {
         return res.status(404).json({ message: "Content not found" });
       }
-      
+
       res.json(updatedContent);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -123,7 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: validationError.details 
         });
       }
-      
+
       console.error("Error updating content:", error);
       res.status(500).json({ message: "Failed to update content" });
     }
@@ -133,17 +133,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/contents/:id/stage", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID format" });
       }
-      
+
       const { stage } = req.body;
-      
+
       if (!stage) {
         return res.status(400).json({ message: "Stage is required" });
       }
-      
+
       // Check content ownership
       if (req.isAuthenticated()) {
         const content = await storage.getContent(id);
@@ -151,13 +151,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(403).json({ message: "Access denied" });
         }
       }
-      
+
       const updatedContent = await storage.updateContent(id, { stage });
-      
+
       if (!updatedContent) {
         return res.status(404).json({ message: "Content not found" });
       }
-      
+
       res.json(updatedContent);
     } catch (error) {
       console.error("Error updating content stage:", error);
@@ -169,11 +169,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/contents/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      
+
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID format" });
       }
-      
+
       // Check content ownership
       if (req.isAuthenticated()) {
         const content = await storage.getContent(id);
@@ -181,17 +181,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(403).json({ message: "Access denied" });
         }
       }
-      
+
       const success = await storage.deleteContent(id);
-      
+
       if (!success) {
         return res.status(404).json({ message: "Content not found" });
       }
-      
+
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting content:", error);
       res.status(500).json({ message: "Failed to delete content" });
+    }
+  });
+
+  app.post("/api/logout", (req, res, next) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      res.sendStatus(200);
+    });
+  });
+
+  app.post("/api/user/password", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      const hashedPassword = await hashPassword(req.body.password);
+      await storage.updateUserPassword(userId, hashedPassword);
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("Error changing password:", error);
+      res.status(500).json({ message: "Failed to change password" });
     }
   });
 
