@@ -30,9 +30,15 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 function App() {
   const [location] = useLocation();
   
-  // Redirect root to /register if not authenticated
+  const { data: user, isLoading } = useQuery({ 
+    queryKey: ["/api/user"],
+    retry: false
+  });
+
+  // Redirect root to appropriate route based on auth status
   if (location === "/") {
-    return <Redirect to="/register" />;
+    if (isLoading) return <div>Loading...</div>;
+    return <Redirect to={user ? "/kanban" : "/register"} />;
   }
 
   return (

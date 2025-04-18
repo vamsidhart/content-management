@@ -40,7 +40,7 @@ export default function Register() {
         title: "Success",
         description: isLogin ? "Login successful!" : "Registration successful!",
       });
-      setLocation("/");
+      setLocation("/kanban");
     } catch (error) {
       toast({
         title: "Error",
