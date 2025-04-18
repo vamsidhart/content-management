@@ -3,9 +3,8 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -31,7 +30,11 @@ export default function Login() {
 
       window.location.href = "/";
     } catch (error) {
-      toast({ title: "Login failed", variant: "destructive" });
+      toast({ 
+        title: "Login failed", 
+        description: "Please check your credentials and try again",
+        variant: "destructive" 
+      });
     }
   };
 
@@ -44,18 +47,17 @@ export default function Login() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
               <Input
-                id="username"
+                type="text"
+                placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
               <Input
-                id="password"
                 type="password"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
