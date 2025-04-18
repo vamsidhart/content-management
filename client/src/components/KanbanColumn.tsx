@@ -73,7 +73,9 @@ export default function KanbanColumn({
         <Button 
           variant="outline" 
           className="w-full"
-          onClick={() => setIsAddDialogOpen(true)}
+          onClick={() => {
+            setIsAddDialogOpen(true);
+          }}
         >
           <Plus className="w-5 h-5 mx-auto" />
         </Button>
