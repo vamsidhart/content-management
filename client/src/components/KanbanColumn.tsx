@@ -85,20 +85,6 @@ export default function KanbanColumn({
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onContentAdded={handleAddContent}
-        initialContent={{
-          id: 0,
-          title: "",
-          description: "",
-          script: "",
-          thumbnailIdea: "",
-          resourcesLinks: "",
-          stage: stage,
-          contentType: "Short",
-          plannedDate: "",
-          youtubeLiveLink: "",
-          instagramLiveLink: "",
-          createdAt: "",
-        }}
       />
     </div>
   );
