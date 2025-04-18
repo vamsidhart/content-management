@@ -17,6 +17,14 @@ const isAuthenticated = (req: Request, res: any, next: any) => {
   res.status(401).json({ message: "Not authenticated" });
 };
 
+async function createTestUser() {
+  const password = "password123"; // Needs to be hashed securely!
+  const hashedPassword = await hashPassword(password);
+  const newUser = await storage.createUser("testuser", hashedPassword);
+  return newUser;
+
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   app.use(cookieParser()); // Use cookie-parser middleware
 
@@ -46,6 +54,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+
+  app.post("/api/create-test-user", async (req, res) => {
+    try {
+      const user = await createTestUser();
+      res.json({ message: "Test user created", username: "testuser" });
+    } catch (error) {
+      console.error("Error creating test user:", error);
+      res.status(500).json({ message: "Failed to create test user" });
+    }
+  });
 
   app.post("/api/logout", (req: Request, res: Response) => {
     req.session.destroy((err) => {
