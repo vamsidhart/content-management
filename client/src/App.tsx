@@ -24,27 +24,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  useWebSocket();
-  const { data: user, isLoading } = useQuery(["/api/user"], {
-    retry: false,
-    refetchOnWindowFocus: false
-  });
-  
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <Switch>
-      <Route path="/login">
-        {user ? <Redirect to="/" /> : <Login />}
-      </Route>
       <Route path="/">
-        {!user ? <Redirect to="/login" /> : (
-          <AppLayout>
-            <KanbanView />
-          </AppLayout>
-        )}
+        <Login />
       </Route>
       <Route path="/calendar">
         <ProtectedRoute>
