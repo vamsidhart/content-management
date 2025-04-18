@@ -32,7 +32,7 @@ export default function Sidebar({ className }: SidebarProps) {
     <div className={cn("flex md:flex-shrink-0", className)}>
       <div className="flex flex-col w-64 bg-white border-r border-slate-200">
         <div className="flex items-center justify-center h-16 px-4 bg-indigo-600">
-          <h1 className="text-xl font-bold text-white">ContentFlow</h1>
+          <h1 className="text-xl font-bold text-white">TVE</h1>
         </div>
         <div className="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
           <nav className="flex-1 space-y-2">
