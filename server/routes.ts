@@ -166,8 +166,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin routes for user management
-  app.post('/api/users', requireAdmin, async (req, res) => {
+  // User management routes
+  app.post('/api/users', async (req, res) => {
     try {
       const userData = req.body;
       const user = await storage.createUser({
@@ -180,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/users', requireAdmin, async (req, res) => {
+  app.get('/api/users', async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users.map(user => ({ ...user, password: undefined })));
