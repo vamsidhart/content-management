@@ -68,6 +68,16 @@ export default function KanbanColumn({
           </div>
         )}
       </div>
+      
+      <div className="mt-3 text-center">
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={() => setIsAddDialogOpen(true)}
+        >
+          <Plus className="w-5 h-5 mx-auto" />
+        </Button>
+      </div>
 
       <AddContentDialog
         open={isAddDialogOpen}

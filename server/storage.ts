@@ -8,29 +8,6 @@ import {
   type InsertUser
 } from "@shared/schema";
 import { db } from "./db";
-import { scrypt, randomBytes } from "crypto";
-import { promisify } from "util";
-
-const scryptAsync = promisify(scrypt);
-
-async function hashPassword(password: string) {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString("hex")}.${salt}`;
-}
-
-export async function createTestUser() {
-  const { hashPassword } = await import('./auth');
-  const hashedPassword = await hashPassword("testpass123");
-  return await db.insert(users)
-    .values({
-      username: "testuser",
-      password: hashedPassword,
-      email: "test@example.com"
-    })
-    .onConflictDoNothing()
-    .returning();
-}
 import { eq } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
