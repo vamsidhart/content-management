@@ -21,14 +21,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all content items (for authenticated users, return only their content)
   app.get("/api/contents", async (req, res) => {
     try {
-      let contents;
-      if (req.isAuthenticated()) {
-        // Get user's contents if authenticated
-        // commented by Vamsi -    contents = await storage.getUserContents((req.user as any).id);
-        // commented by Vamsi - } else {
-        // Otherwise get all contents (for demo purposes)
-        contents = await storage.getAllContents();
-      }
+      const contents = await storage.getAllContents();
       res.json(contents);
     } catch (error) {
       console.error("Error fetching contents:", error);
