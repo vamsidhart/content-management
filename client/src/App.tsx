@@ -8,15 +8,19 @@ import AppLayout from "./components/AppLayout";
 
 function App() {
   return (
-    <AppLayout>
-      <Switch>
-        <Route path="/" component={KanbanView} />
-        <Route path="/calendar" component={CalendarView} />
-        <Route path="/all" component={AllContent} />
-        <Route path="/register" component={Register} />
-        <Route component={NotFound} />
-      </Switch>
-    </AppLayout>
+    <Switch>
+      <Route path="/register" component={Register} />
+      <Route>
+        <AppLayout>
+          <Switch>
+            <Route path="/" component={KanbanView} />
+            <Route path="/calendar" component={CalendarView} />
+            <Route path="/all" component={AllContent} />
+            <Route component={NotFound} />
+          </Switch>
+        </AppLayout>
+      </Route>
+    </Switch>
   );
 }
 
