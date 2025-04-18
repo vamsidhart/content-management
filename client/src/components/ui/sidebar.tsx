@@ -23,10 +23,7 @@ export default function Sidebar({ className }: SidebarProps) {
     { name: "Resources", path: "/resources", icon: BookOpen },
   ];
 
-  const bottomNavigation = [
-    { name: "Settings", path: "/settings", icon: Settings },
-    { name: "Profile", path: "/profile", icon: User },
-  ];
+  const bottomNavigation = [];
 
   return (
     <div className={cn("flex md:flex-shrink-0", className)}>
@@ -56,18 +53,7 @@ export default function Sidebar({ className }: SidebarProps) {
             })}
           </nav>
 
-          <div className="mt-auto pt-4 border-t border-slate-200">
-            {bottomNavigation.map((item) => (
-              <Link 
-                key={item.name} 
-                href={item.path}
-                className="flex items-center px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-md mt-1"
-              >
-                <item.icon className="w-5 h-5 mr-3" />
-                {item.name}
-              </Link>
-            ))}
-          </div>
+          
         </div>
       </div>
     </div>
