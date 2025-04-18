@@ -22,13 +22,18 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
-  if (!stored || !stored.includes(".")) {
+  try {
+    if (!stored || !stored.includes(".")) {
+      return false;
+    }
+    const [hashed, salt] = stored.split(".");
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch (error) {
+    console.error("Password comparison error:", error);
     return false;
   }
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
 export function setupAuth(app: Express) {
@@ -98,13 +103,25 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
+    if (!req.body.username || !req.body.password) {
+      return res.status(400).json({ message: "Username and password are required" });
+    }
+
     passport.authenticate("local", (err, user, info) => {
-      if (err) return next(err);
-      if (!user) return res.status(401).json({ message: "Invalid credentials" });
+      if (err) {
+        console.error("Authentication error:", err);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+      
+      if (!user) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
       
       req.login(user, (err) => {
-        if (err) return next(err);
-        // Don't send the password back to the client
+        if (err) {
+          console.error("Login error:", err);
+          return res.status(500).json({ message: "Failed to create session" });
+        }
         const { password, ...userWithoutPassword } = user;
         res.status(200).json(userWithoutPassword);
       });
